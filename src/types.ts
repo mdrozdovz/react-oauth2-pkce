@@ -54,6 +54,8 @@ export interface IAuthContext {
 
 export type TPrimitiveRecord = { [key: string]: string | boolean | number }
 
+export type THashingFunction = (algorithm: string, data: Uint8Array) => Promise<Uint8Array | ArrayBuffer>
+
 // Input from users of the package, some optional values
 export type TAuthConfig = {
   clientId: string
@@ -81,6 +83,7 @@ export type TAuthConfig = {
   storage?: 'session' | 'local'
   storageKeyPrefix?: string
   refreshWithScope?: boolean
+  hashingFn?: THashingFunction
 }
 
 export type TRefreshTokenExpiredEvent = {
@@ -116,4 +119,5 @@ export type TInternalConfig = {
   storage: 'session' | 'local'
   storageKeyPrefix: string
   refreshWithScope: boolean
+  hashingFn?: THashingFunction
 }

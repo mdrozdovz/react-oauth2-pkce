@@ -1,3 +1,5 @@
+import { THashingFunction } from "./types";
+
 export function getRandomInteger(range: number): number {
   const max_range = 256 // Highest possible number in Uint8
 
@@ -21,15 +23,16 @@ export function generateRandomString(length: number): string {
 /**
  *  PKCE Code Challenge = base64url(hash(codeVerifier))
  */
-export async function generateCodeChallenge(codeVerifier: string): Promise<string> {
-  if (!window.crypto.subtle?.digest) {
+export async function generateCodeChallenge(codeVerifier: string, hashingFn?: THashingFunction): Promise<string> {
+  if (!window.crypto.subtle?.digest && !hashingFn) {
     throw new Error(
       "The context/environment is not secure, and does not support the 'crypto.subtle' module. See: https://developer.mozilla.org/en-US/docs/Web/API/Crypto/subtle for details"
     )
   }
+  const hashFn = window.crypto.subtle?.digest || hashingFn
   const encoder = new TextEncoder()
   const bytes: Uint8Array = encoder.encode(codeVerifier) // Encode the verifier to a byteArray
-  const hash: ArrayBuffer = await window.crypto.subtle.digest('SHA-256', bytes) // sha256 hash it
+  const hash: ArrayBuffer = await hashFn('SHA-256', bytes) // sha256 hash it
   const hashString: string = String.fromCharCode(...new Uint8Array(hash))
   const base64 = btoa(hashString) // Base64 encode the verifier hash
   return base64 // Base64Url encode the base64 encoded string, making it safe as a query param
